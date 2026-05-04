@@ -132,8 +132,11 @@ void insertTreeMap(TreeMap * tree, void* key, void * value)
 // Si x no tiene hijo izquierdo se retorna el mismo nodo.
 
 TreeNode * minimum(TreeNode * x){
-
-    return NULL;
+    while (x != NULL && x->left != NULL)
+    {
+        x = x->left;
+    }
+    return x;
 }
 
 // 5.- Implemente la función void removeNode(TreeMap * tree, TreeNode* node). 
@@ -144,8 +147,64 @@ TreeNode * minimum(TreeNode * x){
 //    - Nodo con dos hijos: Descienda al hijo derecho y obtenga el menor nodo del subárbol (con la función minimum). 
 // Reemplace los datos (key,value) de node con los del nodo "minimum". Elimine el nodo minimum (para hacerlo puede usar la misma función removeNode).
 
-void removeNode(TreeMap * tree, TreeNode* node) {
+void removeNode(TreeMap * tree, TreeNode* node)
+{
+    if (node->left == NULL && node->right == NULL)
+    {
+        if (node->parent == NULL)
+        {
+            tree->root = NULL;
+        } else if (node->parent->left == node)
+        {
+            node->parent->left = NULL;
+        } else
+        {
+            node->parent->right = NULL;
+        }
+        free(node->pair);
+        free(node);
+    }
+    else if (node->left == NULL || node->right == NULL)
+    {
+        TreeNode *child;
 
+        if (node->left != NULL)
+        {
+            child = node->left;
+        }
+        else
+        {
+            child = node->right;
+        }
+
+        
+        if (node->parent == NULL)
+        {
+            tree->root = child;
+        }
+        else if (node->parent->left == node)
+        {
+            node->parent->left = child;
+        }
+        else
+        {
+            node->parent->right = child;
+        }
+
+        child->parent = node->parent;
+        free(node->pair);
+        free(node);
+    }
+
+    else
+    {
+        TreeNode *min = minimum(node->right);
+
+        node->pair->key = min->pair->key;
+        node->pair->value = min->pair->value;
+
+        removeNode(tree, min);
+    }
 }
 
 void eraseTreeMap(TreeMap * tree, void* key){
